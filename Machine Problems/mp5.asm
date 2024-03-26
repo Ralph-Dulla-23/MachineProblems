@@ -8,7 +8,7 @@ section .text
     global _start
 
 _start:
-    ; Read a character from stdin
+  
     mov eax, 3          
     mov ebx, 0           
     mov ecx, buffer     
