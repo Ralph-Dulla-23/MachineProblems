@@ -66,3 +66,8 @@ skip_program:
     mov eax, 1           
     xor ebx, ebx        
     int 0x80       
+
+
+;nasm -f elf dulla.asm
+;ld -m  elf_i386 dulla.o -o dulla
+;./dulla
