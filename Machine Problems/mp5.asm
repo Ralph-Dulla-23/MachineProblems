@@ -15,6 +15,9 @@ _start:
     mov edx, 1          
     int 0x80             
 
+
+if_symbol:
+
     cmp byte [buffer], 'A'
     jl skip_program
 
@@ -29,11 +32,10 @@ if_uppercase:
 
     add byte [buffer], 32
 
-    cmp byte [buffer], '`'
+    cmp byte [buffer], 60h
     jg skip_program
 
    
-
 
 if_lowercase: 
 
