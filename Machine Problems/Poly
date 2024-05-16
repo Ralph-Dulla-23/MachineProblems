@@ -1,0 +1,80 @@
+section .data
+    plaintext db "ZAck", 0     ; Input plaintext
+    ciphertext db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ; Output ciphertext buffer size
+    msglen equ $ - ciphertext   ; Length of the ciphertext buffer
+    newline db 10                ; Newline character
+
+section .text
+    global _start
+
+_start:
+    mov esi, plaintext  ; Point to the plaintext
+    mov edi, ciphertext ; Point to the ciphertext
+
+encode_loop:
+    ; Get the current character
+    mov al, [esi]
+    cmp al, 0          ; Check for end of string
+    je end_encode_loop
+
+    ; Convert the character to uppercase if needed
+    cmp al, 'a'
+    jb not_lowercase
+    cmp al, 'z'
+    ja not_lowercase
+    sub al, 32         ; Convert lowercase to uppercase
+not_lowercase:
+
+    ; Perform the Polybius encoding
+    cmp al, 'J'        ; I and J share a space in the Polybius square
+    je skip_j
+    cmp al, 'I'
+    je skip_j
+    sub al, 'A'        ; Convert character to a number
+    jmp after_conversion
+skip_j:
+    sub al, 'A' - 1    ; Adjust for skipping 'J'
+after_conversion:
+    mov cl, al         ; Move the character to CL
+
+    ; Calculate the row and column
+    mov ah, 0x00       ; Row
+    mov bl, 5          ; Number of columns in the Polybius square
+    div bl             ; AL = CL / 5, AH = CL % 5
+
+    ; Convert row and column to characters
+    add ah, '1'        ; Convert row to character ('1' to '5')
+    add al, '1'        ; Convert column to character ('1' to '5')
+
+    ; Store the encoded characters
+    mov [edi], al
+    inc edi
+    mov [edi], ah
+    inc edi
+
+    ; Move to the next character in the plaintext
+    inc esi
+    jmp encode_loop
+
+end_encode_loop:
+    ; Terminate the ciphertext string
+    mov byte [edi], 0
+
+    ; Display the ciphertext
+    mov eax, 4         ; Syscall number for sys_write
+    mov ebx, 1         ; File descriptor 1 (stdout)
+    mov ecx, ciphertext ; Pointer to the ciphertext
+    mov edx, msglen    ; Length of the ciphertext
+    int 0x80           ; Call kernel
+
+    ; Display newline character
+    mov eax, 4         ; Syscall number for sys_write
+    mov ebx, 1         ; File descriptor 1 (stdout)
+    mov ecx, newline   ; Pointer to the newline character
+    mov edx, 1         ; Length of the newline character
+    int 0x80           ; Call kernel
+
+    ; Exit the program
+    mov eax, 1         ; Exit syscall number
+    xor ebx, ebx       ; Exit status
+    int 0x80           ; Call kernel
