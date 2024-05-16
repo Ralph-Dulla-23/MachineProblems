@@ -1,6 +1,6 @@
 section .data
-    plaintext db "ZAck", 0     ; Input plaintext
-    ciphertext db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ; Output ciphertext buffer size
+    plaintext db "IJ", 0     ; Input plaintext
+    ciphertext db 40 ; Output ciphertext buffer size
     msglen equ $ - ciphertext   ; Length of the ciphertext buffer
     newline db 10                ; Newline character
 
@@ -25,15 +25,9 @@ encode_loop:
     sub al, 32         ; Convert lowercase to uppercase
 not_lowercase:
 
-    ; Perform the Polybius encoding
-    cmp al, 'J'        ; I and J share a space in the Polybius square
-    je skip_j
-    cmp al, 'I'
-    je skip_j
     sub al, 'A'        ; Convert character to a number
     jmp after_conversion
-skip_j:
-    sub al, 'A' - 1    ; Adjust for skipping 'J'
+
 after_conversion:
     mov cl, al         ; Move the character to CL
 
