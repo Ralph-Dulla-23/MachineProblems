@@ -1,0 +1,51 @@
+section .data
+    message db 'HELLO WORLD', 0xA  
+    length  equ $-message          
+
+section .text
+    global _start
+
+_start:
+    mov edx, length  
+    mov ecx, message 
+    mov ebx, 1       
+    mov eax, 4       
+    int 0x80         
+    ; Loop to modify each character
+    mov ecx, message 
+    mov esi, length  
+
+modify_loop:
+    dec esi          
+    jl done          
+
+    mov al, [ecx]    
+    cmp al, 'A'      
+    jb skip          
+    cmp al, 'Z'      
+    ja skip          
+
+    add al, 3        
+    cmp al, 'Z'      
+    jle store       
+    sub al, 26       
+
+store:
+    mov [ecx], al    
+
+skip:
+    inc ecx          
+    jmp modify_loop  
+
+done:
+    ; Print the modified message
+    mov edx, length  
+    mov ecx, message 
+    mov ebx, 1       
+    mov eax, 4       
+    int 0x80        
+
+    ; Exit the program
+    mov eax, 1       
+    xor ebx, ebx     
+    int 0x80         
